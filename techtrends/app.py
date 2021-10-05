@@ -1,13 +1,19 @@
 import sqlite3
+import logging, sys
+from logging import StreamHandler
 
 from flask import Flask, jsonify, json, render_template, request, url_for, redirect, flash
 from werkzeug.exceptions import abort
 
+db_connections_count = 0
+
 # Function to get a database connection.
 # This function connects to database with the name `database.db`
 def get_db_connection():
+    global db_connections_count 
     connection = sqlite3.connect('database.db')
     connection.row_factory = sqlite3.Row
+    db_connections_count += 1
     return connection
 
 # Function to get a post using its ID
@@ -36,13 +42,16 @@ def index():
 def post(post_id):
     post = get_post(post_id)
     if post is None:
+      app.logger.info("Article with post id \"{}\" does not exist".format(post_id))
       return render_template('404.html'), 404
     else:
+      app.logger.info("Article \"{}\" retrieved".format(post["Title"]))
       return render_template('post.html', post=post)
 
 # Define the About Us page
 @app.route('/about')
 def about():
+    app.logger.info("\'About Us\' page retrieved")
     return render_template('about.html')
 
 # Define the post creation functionality 
@@ -60,11 +69,51 @@ def create():
                          (title, content))
             connection.commit()
             connection.close()
+            app.logger.info("New article '{}' created".format(title))
 
             return redirect(url_for('index'))
 
     return render_template('create.html')
 
+@app.route('/healthz')
+def health():
+    response = app.response_class(
+        response = json.dumps({"result":"OK - healthy"}),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
+
+@app.route('/metrics')
+def metrics():
+    connection = get_db_connection()
+    posts = connection.execute('SELECT * FROM posts').fetchall()
+    post_count = len(posts)
+    print(int(post_count))
+    print(type(post_count))
+    response = app.response_class(
+        response = json.dumps({"db_connection_count": db_connections_count, "post_count": post_count}),
+        status=200,
+        mimetype='application/json'
+    )
+    connection.close()
+    return response
+
+logging.basicConfig(format='%(asctime)s, %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', level=logging.DEBUG)
+
 # start the application on port 3111
 if __name__ == "__main__":
-   app.run(host='0.0.0.0', port='3111')
+
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(format='%(asctime)s, %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', filename='app.log', level=logging.DEBUG)
+    
+    handler_out = logging.StreamHandler(sys.stdout)
+    handler_err = logging.StreamHandler(sys.stderr)
+
+    handler_out.setLevel(logging.DEBUG)
+    handler_err.setLevel(logging.ERROR)
+
+    logger.addHandler(handler_out)
+    logger.addHandler(handler_err)
+
+    app.run(host='0.0.0.0', port='3111')
