@@ -1,0 +1,42 @@
+1. Building Docker image using Dockerfile
+sudo docker build -t techtrends .
+
+2. Listing out available Docker images
+docker images
+
+3. Running and testing the Docker image locally
+docker run -d -p 7111:3111 techtrends
+
+4. Listing out containers currently running
+docker ps
+
+5. Retrieving logs
+docker logs db5a4ddeb844
+// where db5a4ddeb844 is the container ID
+
+Logs:
+
+ * Serving Flask app "app" (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+06/10/2021 10:58:33 AM,  * Running on http://0.0.0.0:3111/ (Press CTRL+C to quit)
+06/10/2021 10:58:49 AM, 172.17.0.1 - - [06/Oct/2021 10:58:49] "GET / HTTP/1.1" 200 -
+06/10/2021 10:59:06 AM, Article "KubeCon + CloudNativeCon 2021" retrieved
+06/10/2021 10:59:07 AM, 172.17.0.1 - - [06/Oct/2021 10:59:07] "GET /2 HTTP/1.1" 200 -
+06/10/2021 10:59:17 AM, 'About Us' page retrieved
+06/10/2021 10:59:17 AM, 172.17.0.1 - - [06/Oct/2021 10:59:17] "GET /about HTTP/1.1" 200 -
+06/10/2021 10:59:28 AM, 172.17.0.1 - - [06/Oct/2021 10:59:28] "GET /create HTTP/1.1" 200 -
+06/10/2021 10:59:47 AM, New article 'Hello World' created
+06/10/2021 10:59:47 AM, 172.17.0.1 - - [06/Oct/2021 10:59:47] "POST /create HTTP/1.1" 302 -
+06/10/2021 10:59:47 AM, 172.17.0.1 - - [06/Oct/2021 10:59:47] "GET / HTTP/1.1" 200 -
+06/10/2021 10:59:49 AM, Article "Hello World" retrieved
+06/10/2021 10:59:49 AM, 172.17.0.1 - - [06/Oct/2021 10:59:49] "GET /7 HTTP/1.1" 200 -
+06/10/2021 10:59:59 AM, Article with post id "99" does not exist
+06/10/2021 10:59:59 AM, 172.17.0.1 - - [06/Oct/2021 10:59:59] "GET /99 HTTP/1.1" 404 -
+06/10/2021 11:00:12 AM, 172.17.0.1 - - [06/Oct/2021 11:00:12] "GET /healthz HTTP/1.1" 200 -
+06/10/2021 11:00:28 AM, 172.17.0.1 - - [06/Oct/2021 11:00:28] "GET /metrics HTTP/1.1" 200 -
+06/10/2021 11:00:40 AM, 172.17.0.1 - - [06/Oct/2021 11:00:40] "GET / HTTP/1.1" 200 -
+
+
